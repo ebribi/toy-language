@@ -9,6 +9,8 @@ if arg.endswith('.txt'):
 else:
     source = arg
 
+print(f"source: '{source}', length: {len(source)}")
+
 # pos tracks the current position in the source string
 pos = 0
 
@@ -18,8 +20,9 @@ pos = 0
 def nextChar():
     global pos
     if pos >= len(source):
-        return '\0'
-    c = source[pos]
+        c =  '\0'
+    else:
+        c = source[pos]
     pos += 1
     return c
 
@@ -27,7 +30,7 @@ def nextChar():
 # Called when you've read one character too far to confirm a token is complete
 def retract():
     global pos
-    pos -= 1
+    pos -= 1   
 
 # Scan the source string and return the next token type as a (type, value) tuple
 # Implements a transition-diagram-based lexical analyzer with the following states
@@ -83,8 +86,6 @@ def getNextToken():
                 c = nextChar()
                 if c.isdigit():
                     lexeme += c    # keep consuming digits
-                elif c == '\0':
-                    return ('LITERAL', lexeme)    # end of input, no retract needed
                 else:
                     retract();    # put back non-digit character
                     return ('LITERAL', lexeme)   
@@ -93,8 +94,6 @@ def getNextToken():
                 c = nextChar()
                 if c.isalpha() or c.isdigit() or c == '_':
                     lexeme += c    # keep consuming valid characters
-                elif c == '\0':
-                    return ('IDENTIFIER', lexeme)    # end of input, no retract needed
                 else:
                     retract()    # put back the non-identifier character
                     return ('IDENTIFIER', lexeme)     
