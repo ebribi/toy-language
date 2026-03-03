@@ -19,10 +19,7 @@ pos = 0
 # Returns null terminator '\0' if end of input has been reached
 def nextChar():
     global pos
-    if pos >= len(source):
-        c =  '\0'
-    else:
-        c = source[pos]
+    c = '\0' if pos >= len(source) else source[pos]
     pos += 1
     return c
 
