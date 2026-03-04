@@ -9,11 +9,8 @@ if arg.endswith('.txt'):
 else:
     source = arg
 
-print(f"source: '{source}', length: {len(source)}")
-
 # pos tracks the current position in the source string
 pos = 0
-
 
 # Consume and return the next character in the source string
 # Returns null terminator '\0' if end of input has been reached
@@ -64,7 +61,7 @@ def getNextToken():
                     return ('LPAREN', '(')
                 elif c == ')':
                     return ('RPAREN', ')')
-                elif c == ' ' or c == '\n' or c == '\t':
+                elif c.isspace():
                     continue    # skip whitespace
                 elif c == '\0':
                     return ('EOF', None)
