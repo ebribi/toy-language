@@ -12,6 +12,18 @@ else:
 # pos tracks the current position in the source string
 pos = 0
 
+# Map single character symbols to their token types
+# Dictionary lookup is used over elif chain for efficiency & maintainability
+SINGLE_CHAR_TOKENS = {
+    '+': 'PLUS',
+    '-': 'MINUS',
+    '*': 'STAR',
+    '=': 'ASSIGN',
+    ';': 'SEMICOLON',
+    '(': 'LPAREN',
+    ')': 'RPAREN',
+}
+
 # Consume and return the next character in the source string
 # Returns null terminator '\0' if end of input has been reached
 def nextChar():
@@ -26,7 +38,7 @@ def retract():
     global pos
     pos -= 1   
 
-# Scan the source string and return the next token type as a (type, value) tuple
+# Scan the source string and return the next token as a (type, value) tuple
 # Implements a transition-diagram-based lexical analyzer with the following states
 #    0 - Start state: reads first character and branches to appropriate state
 #    1 - Just read '0': checks for illegal leading zero (e.g 001)
@@ -40,27 +52,15 @@ def getNextToken():
             case 0:
                 c = nextChar()
                 if c == '0':
-                    state = 1    # literal zero or error
-                elif c in '123456789':
+                    state = 1    # literal zero or error (e.g. 001)
+                elif c.isdigit() and c != '0':
                     lexeme = c
                     state = 2    # start of multi-digit literal
                 elif c.isalpha() or c == '_':
                     lexeme = c
                     state = 3    # start of identifier
-                elif c == '+':
-                    return ('PLUS', '+')
-                elif c == '-':
-                    return ('MINUS', '-')
-                elif c == '*': 
-                    return ('STAR', '*')
-                elif c == '=':
-                    return ('ASSIGN', '=')
-                elif c == ';':
-                    return ('SEMICOLON', ';')
-                elif c == '(':
-                    return ('LPAREN', '(')
-                elif c == ')':
-                    return ('RPAREN', ')')
+                elif c in SINGLE_CHAR_TOKENS:
+                    return (SINGLE_CHAR_TOKENS[c], c)    # single character token
                 elif c.isspace():
                     continue    # skip whitespace
                 elif c == '\0':
@@ -81,8 +81,8 @@ def getNextToken():
                 if c.isdigit():
                     lexeme += c    # keep consuming digits
                 else:
-                    retract();    # put back non-digit character
-                    return ('LITERAL', lexeme)   
+                    retract()    # put back non-digit character
+                    return ('LITERAL', lexeme) 
             case 3:
                 # Accumulate characters for an identifier (letters, digits, underscores)
                 c = nextChar()
