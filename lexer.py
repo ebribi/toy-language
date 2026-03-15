@@ -30,19 +30,18 @@ KEYWORDS = {
 }
 
 # Consume and return the next character in the source string
+# Returns null terminator '\0' if end of input has been reached
 def nextChar():
     global pos
-    if pos < len(source):
-        c = source[pos]
-        pos += 1
-        return c
+    c = '\0' if pos >= len(source) else source[pos]
+    pos += 1
+    return c
 
 # Step back one character in the source string
 # Called when you've read one character too far to confirm a token is complete
 def retract():
     global pos
-    if pos < len(source):
-        pos -= 1   
+    pos -= 1   
 
 # Scan the source string and return the next token as a (type, value) tuple
 # Implements a transition-diagram-based lexical analyzer with the following states
@@ -50,18 +49,15 @@ def retract():
 #    1 - Just read '0': checks for illegal leading zero (e.g 001)
 #    2 - Reading a multi-digit literal (starts with 1-9)
 #    3 - Reading an identifier (starts with letter or underscore)
-# Token types returned: LITERAL, IDENTIFIER, PLUS, MINUS, STAR, ASSIGN, SEMICOLON, LPAREN, RPAREN, ERROR
+# Token types returned: LITERAL, IDENTIFIER, PLUS, MINUS, STAR, ASSIGN, SEMICOLON, LPAREN, RPAREN, EOF, ERROR
 def getNextToken():
     state = 0
     while True:
-        c = nextChar()        
+        c = nextChar()
         match state:
             case 0:
-                if c is None:
-                    return None
-                elif c == '0':
+                if c == '0':
                     state = 1    # literal zero or error (e.g. 001)
-                # do c >= '1' && c <= '9':
                 elif c.isdigit() and c != '0':
                     lexeme = c
                     state = 2    # start of multi-digit literal
@@ -72,11 +68,13 @@ def getNextToken():
                     return (SINGLE_CHAR_TOKENS[c], c)    # single character token
                 elif c.isspace():
                     continue    # skip whitespace
+                elif c == '\0':
+                    return None
                 else:
                     return ('ERROR', c)    # unexpected character
             case 1:
                 # Just consumed '0' - peek at next char to detect leading zeros
-                if c is not None and c.isdigit():
+                if c.isdigit():
                     return ('ERROR', 'leading zero')
                 else:
                     retract()    # put back non-digit character
@@ -102,10 +100,10 @@ def getNextToken():
 # For demo/testing:
 # Drive the lexer - repeatedly call getNextToken() until EOF or ERROR
 tokens = []
-while pos <= len(source):
+while True:
     token = getNextToken()
-    if token is None:
-        break
     tokens.append(token)
+    if token is None  or token[0] == 'ERROR':
+        break
 
 print(tokens)            
