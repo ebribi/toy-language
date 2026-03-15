@@ -24,6 +24,11 @@ SINGLE_CHAR_TOKENS = {
     ')': 'RPAREN',
 }
 
+# Map keywords
+KEYWORDS = {
+    'let': 'LET'
+}
+
 # Consume and return the next character in the source string
 def nextChar():
     global pos
@@ -89,6 +94,9 @@ def getNextToken():
                     lexeme += c    # keep consuming valid characters
                 else:
                     retract()    # put back the non-identifier character
+                    # check if lexeme is a keyword before returning IDENTIFIER
+                    if lexeme in KEYWORDS:
+                        return (KEYWORDS[lexeme], lexeme)
                     return ('IDENTIFIER', lexeme)     
 
 # For demo/testing:
