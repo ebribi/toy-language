@@ -1,5 +1,4 @@
-import sys
-
+# Module level variable to store source string, set by the parser
 source = ""
 
 # pos tracks the current position in the source string
@@ -17,14 +16,15 @@ SINGLE_CHAR_TOKENS = {
     ')': 'RPAREN',
 }
 
-# Map keywords
+# Map keywords to their token types
+# Checked after scanning an identifier to distinguish keywords from variable names
 KEYWORDS = {
     'let': 'LET'
 }
 
 # Consume and return the next character in the source string
 # Returns null terminator '\0' if end of input has been reached
-def nextChar():
+def next_char():
     global pos
     c = '\0' if pos >= len(source) else source[pos]
     pos += 1
@@ -42,11 +42,12 @@ def retract():
 #    1 - Just read '0': checks for illegal leading zero (e.g 001)
 #    2 - Reading a multi-digit literal (starts with 1-9)
 #    3 - Reading an identifier (starts with letter or underscore)
-# Token types returned: LITERAL, IDENTIFIER, PLUS, MINUS, STAR, ASSIGN, SEMICOLON, LPAREN, RPAREN, EOF, ERROR
-def getNextToken():
+# Returns None at end of input
+# Token types returned: LITERAL, IDENTIFIER, LET, PLUS, MINUS, STAR, ASSIGN, SEMICOLON, LPAREN, RPAREN, ERROR
+def get_next_token():
     state = 0
     while True:
-        c = nextChar()
+        c = next_char()
         match state:
             case 0:
                 if c == '0':
@@ -62,7 +63,7 @@ def getNextToken():
                 elif c.isspace():
                     continue    # skip whitespace
                 elif c == '\0':
-                    return None
+                    return None   # end of input
                 else:
                     return ('ERROR', c)    # unexpected character
             case 1:
@@ -89,4 +90,3 @@ def getNextToken():
                     if lexeme in KEYWORDS:
                         return (KEYWORDS[lexeme], lexeme)
                     return ('IDENTIFIER', lexeme)     
-
