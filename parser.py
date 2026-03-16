@@ -10,6 +10,9 @@ try:
 except FileNotFoundError:
     lexer.source = arg
 
+# Reset lexer position for new input
+lexer.pos = 0
+
 # Node represents a single node in the parse tree
 # type - the grammar symbol or token type (e.g. 'Program', 'Assignment', 'IDENTIFIER')
 # value - the token value for terminal nodes (e.g. 'x', '1', '+'), None for nonterminals
@@ -60,6 +63,8 @@ def parse_program():
 # Handles both regular and single-assignment (let) variable assignments
 def parse_assignment():
     node = Node('Assignment')
+    if current_token is None:
+        error("unexpected end of input")
     if current_token[0] == 'LET':
         node.add_child(Node(*match('LET')))
     node.add_child(Node(*match('IDENTIFIER')))
@@ -97,7 +102,7 @@ def parse_term():
 # Term' -> * Fact Term' | epsilon
 # Handles left-recursive multiplication
 def parse_term_prime():
-    if current_token is not None and current_token[0] in ('STAR'):
+    if current_token is not None and current_token[0] == 'STAR':
         node = Node('Term_Prime')
         node.add_child(Node(*match('STAR')))
         node.add_child(parse_fact())
@@ -110,6 +115,8 @@ def parse_term_prime():
 # Base case of expression parsing - handles grouping, unary operators, and values
 def parse_fact():
     node = Node('Fact')
+    if current_token is None:
+        error("unexpected end of input")
     if current_token[0] == 'LPAREN': 
         node.add_child(Node(*match('LPAREN')))
         node.add_child(parse_exp())
@@ -136,6 +143,7 @@ def print_tree(node, prefix="", is_last=True):
         print_tree(child, prefix, i == len(node.children) - 1)
 
 # Loads the first token and parse the program
-advance()
-tree = parse_program()
-print_tree(tree)
+if __name__ == "__main__":
+    advance()
+    tree = parse_program()
+    print_tree(tree)
