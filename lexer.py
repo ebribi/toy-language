@@ -1,13 +1,6 @@
 import sys
 
-# Accept either a filename (.txt) or a raw string as a command line argument
-arg = sys.argv[1]
-
-try:
-    with open(arg, 'r') as f:
-        source = f.read()
-except FileNotFoundError:
-    source = arg
+source = ""
 
 # pos tracks the current position in the source string
 pos = 0
@@ -97,13 +90,3 @@ def getNextToken():
                         return (KEYWORDS[lexeme], lexeme)
                     return ('IDENTIFIER', lexeme)     
 
-# For demo/testing:
-# Drive the lexer - repeatedly call getNextToken() until EOF or ERROR
-tokens = []
-while True:
-    token = getNextToken()
-    tokens.append(token)
-    if token is None  or token[0] == 'ERROR':
-        break
-
-print(tokens)            
