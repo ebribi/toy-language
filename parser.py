@@ -37,7 +37,7 @@ def advance():
 # Print error message and exit
 # Called on syntax errors during parsing
 def error(message="syntax error"):
-    print(f"error: {message}")
+    print(f"error")
     sys.exit(1)
 
 # Consume the current token if it matches the expected type
